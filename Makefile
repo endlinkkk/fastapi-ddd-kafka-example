@@ -6,11 +6,9 @@ APP_FILE = docker_compose/app.yaml
 APP_CONTAINER = main-app
 
 
-
 .PHONY: app
 app:
 	${DC} -f ${APP_FILE} ${ENV} up --build -d
-
 
 .PHONY: app-logs
 app-logs:
@@ -23,4 +21,8 @@ app-shell:
 .PHONY: app-down
 app-down:
 	${DC} -f ${APP_FILE}  down
+
+.PHONY: test
+test:
+	${EXEC} ${APP_CONTAINER} pytest
 
