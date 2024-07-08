@@ -8,8 +8,8 @@ from domain.values.messages import Text, Title
 from faker import Faker
 
 
-def test_create_message_success():
-    text = Text(Faker().text(max_nb_chars=254))
+def test_create_message_success(faker: Faker):
+    text = Text(faker.text(max_nb_chars=254))
     message = Message(text=text)
 
     assert message.text == text
@@ -31,8 +31,8 @@ def test_create_chat_title_too_long():
         title = Title("title" * 200)
 
 
-def test_add_chat_to_message():
-    text = Text(Faker().text(max_nb_chars=254))
+def test_add_chat_to_message(faker: Faker):
+    text = Text(faker.text(max_nb_chars=254))
     message = Message(text=text)
 
     title = Title("title")
@@ -43,8 +43,8 @@ def test_add_chat_to_message():
     assert message in chat.messages
 
 
-def test_new_message_events():
-    text = Text(Faker().text(max_nb_chars=254))
+def test_new_message_events(faker: Faker):
+    text = Text(faker.text(max_nb_chars=254))
     message = Message(text=text)
 
     title = Title("title")
@@ -54,14 +54,12 @@ def test_new_message_events():
     events = chat.pull_events()
     pulled_events = chat.pull_events()
 
-
     assert not chat.pull_events()
     assert len(events) == 1, events
-    
+
     new_event = events[0]
 
     assert isinstance(new_event, NewMessageReceivedEvent), new_event
     assert new_event.message_oid == message.oid
     assert new_event.message_text == text.as_generic_type()
     assert new_event.chat_oid == chat.oid
-

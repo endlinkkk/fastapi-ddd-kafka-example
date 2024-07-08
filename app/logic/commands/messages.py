@@ -20,9 +20,9 @@ class CreateChatCommandHandler(BaseCommandHandler[CreateChatCommand, Chat]):
         if await self.chat_repository.check_chat_exists_by_title(command.title):
             raise ChatWithThatTitleAlreadyExistsException(command.title)
         
+
         title = Title(value=command.title)
         chat = Chat.create_chat(title=title)
-        #raise Exception(title, chat)
 
         await self.chat_repository.add_chat(chat)
 

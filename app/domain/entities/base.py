@@ -21,7 +21,7 @@ class BaseEntity(ABC):
         self._events.clear()
 
         return registered_events
-    
+
     def register_event(self, event: BaseEvent):
         self._events.append(event)
 

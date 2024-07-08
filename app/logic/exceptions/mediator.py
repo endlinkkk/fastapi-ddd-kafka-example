@@ -2,6 +2,7 @@ from dataclasses import dataclass
 
 from logic.exceptions.base import LogicException
 
+
 @dataclass(eq=False)
 class EventHandlersNotRegisteredException(LogicException):
     event_type: type
@@ -9,7 +10,7 @@ class EventHandlersNotRegisteredException(LogicException):
     @property
     def message(self):
         return f"Could not find handlers for the event: {self.event_type}"
-    
+
 
 @dataclass(eq=False)
 class CommandHandlersNotRegisteredException(LogicException):
