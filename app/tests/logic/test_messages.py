@@ -7,6 +7,7 @@ from infra.repositories.messages import BaseChatRepository
 from logic.commands.messages import CreateChatCommand
 from logic.exceptions.messages import ChatWithThatTitleAlreadyExistsException
 from logic.mediator import Mediator
+from punq import Container
 
 
 @pytest.mark.asyncio
@@ -21,15 +22,15 @@ async def test_create_chat_command_success(
         )
     )[0]
 
-    assert await (chat_repository.check_chat_exists_by_title(
+    assert await chat_repository.check_chat_exists_by_title(
         title=chat.title.as_generic_type()
-    ))
+    )
 
 
 @pytest.mark.asyncio
 async def test_create_chat_command_title_already_exists(
-    chat_repository: BaseChatRepository,
-    mediator: Mediator,
+    chat_repository,
+    mediator,
     faker: Faker,
 ):
     fake_title = faker.text(max_nb_chars=10)
@@ -38,12 +39,9 @@ async def test_create_chat_command_title_already_exists(
     await chat_repository.add_chat(chat)
 
     with pytest.raises(ChatWithThatTitleAlreadyExistsException):
-        
+
         chat: Chat = (
-            await mediator.handle_command(
-                CreateChatCommand(title=fake_title)
-            )
+            await mediator.handle_command(CreateChatCommand(title=fake_title))
         )[0]
 
     assert len(chat_repository._saved_chats) == 1
-

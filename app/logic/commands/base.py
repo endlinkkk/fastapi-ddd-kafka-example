@@ -7,8 +7,8 @@ from typing import Any, Generic, TypeVar
 class BaseCommand(ABC): ...
 
 
-CT = TypeVar(name="CT", bound=BaseCommand)
-CR = TypeVar(name="CR", bound=Any)
+CT = TypeVar("CT", bound=BaseCommand)
+CR = TypeVar("CR", bound=Any)
 
 
 @dataclass(frozen=True)

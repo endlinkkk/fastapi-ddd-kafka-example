@@ -22,7 +22,7 @@ class MemoryChatRepository(ABC):
             if chat.title.as_generic_type() == title:
                 return True
         # try:
-            
+
         #     return bool(next(chat for chat in self._saved_chats if chat.title.as_generic_type() == title))
         # except StopIteration:
         #     return False
