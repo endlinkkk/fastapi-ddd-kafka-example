@@ -1,1 +1,1 @@
-from tests.conftest import *
+from tests.logic.conftest import *

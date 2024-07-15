@@ -1,6 +1,6 @@
 from pytest import fixture
 
-from infra.repositories.messages import BaseChatRepository, MemoryChatRepository
+from infra.repositories.messages.memory import BaseChatRepository, MemoryChatRepository
 
 from logic.mediator import Mediator
 from punq import Container
