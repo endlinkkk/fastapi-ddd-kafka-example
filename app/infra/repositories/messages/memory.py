@@ -5,7 +5,6 @@ from domain.entities.messages import Chat
 from infra.repositories.messages.base import BaseChatRepository
 
 
-
 @dataclass
 class MemoryChatRepository(BaseChatRepository):
     _saved_chats: list[Chat] = field(default_factory=list, kw_only=True)
