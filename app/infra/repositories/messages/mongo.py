@@ -31,14 +31,14 @@ class MongoDBChatRepository(BaseChatRepository, BaseMongoDBRepository):
         chat_document = await self._collection.find_one(filter={"oid": oid})
 
         if not chat_document:
+
             return None
 
         return convert_chat_document_to_entity(chat_document)
 
     async def check_chat_exists_by_title(self, title: str) -> bool:
-        collection = self._collection
-
-        return await bool(collection.find_one(filter={"title": title}))
+        chat_document = await self._collection.find_one(filter={"title": title})
+        return bool(chat_document)
 
     async def add_chat(self, chat: Chat) -> None:
         collection = self._collection
