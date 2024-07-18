@@ -1,4 +1,5 @@
 from datetime import datetime
+from uuid import uuid4
 import pytest
 
 from domain.entities.messages import Chat, Message
@@ -10,7 +11,7 @@ from faker import Faker
 
 def test_create_message_success(faker: Faker):
     text = Text(faker.text(max_nb_chars=254))
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=uuid4())
 
     assert message.text == text
 
@@ -33,7 +34,7 @@ def test_create_chat_title_too_long():
 
 def test_add_chat_to_message(faker: Faker):
     text = Text(faker.text(max_nb_chars=254))
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=uuid4())
 
     title = Title("title")
     chat = Chat(title=title)
@@ -45,7 +46,7 @@ def test_add_chat_to_message(faker: Faker):
 
 def test_new_message_events(faker: Faker):
     text = Text(faker.text(max_nb_chars=254))
-    message = Message(text=text)
+    message = Message(text=text, chat_oid=uuid4())
 
     title = Title("title")
     chat = Chat(title=title)

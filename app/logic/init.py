@@ -55,7 +55,7 @@ def _init_container() -> Container:
         return MongoDBMessageRepository(
             mongo_db_client=client,
             mongo_db_db_name=config.mongodb_chat_database,
-            mongo_db_collection_name=config.mongodb_chat_collection,
+            mongo_db_collection_name=config.mongodb_messages_collection,
         )
 
     container.register(CreateChatCommandHandler)
