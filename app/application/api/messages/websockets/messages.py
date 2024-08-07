@@ -1,33 +1,44 @@
 from uuid import UUID
-from fastapi import Depends, WebSocket
+from fastapi import Depends, WebSocket, WebSocketDisconnect
 from fastapi.routing import APIRouter
 from punq import Container
 
 from application.api.messages.decorators import handle_exceptions
 from infra.message_brokers.base import BaseMessageBroker
+from infra.websockets.managers import BaseConnectionManager
+from logic.exceptions.messages import ChatNotFoundException
 from logic.init import init_container
+from logic.mediator.base import Mediator
+from logic.queries.messages import GetChatDetailQuery
 from settings.config import Config
 
 
 router = APIRouter(tags=['chats'])
 
-@router.websocket('/{chat_oid}')
-@handle_exceptions
-async def messages_handlers(
-    chat_oid: UUID, 
+@router.websocket("/{chat_oid}/")
+async def websocket_endpoint(
+    chat_oid: str,
     websocket: WebSocket,
-    container: Container = Depends(init_container)
-    ):
-    await websocket.accept()
+    container: Container = Depends(init_container),
+):
+    connection_manager: BaseConnectionManager = container.resolve(BaseConnectionManager)
+    mediator: Mediator = container.resolve(Mediator)
 
-    config: Config = container.resolve(Config)
+    try:
+        await mediator.handle_query(GetChatDetailQuery(chat_oid=chat_oid))
+    except ChatNotFoundException as error:
+        await websocket.accept()
+        await websocket.send_json(data={'error': error.message})
+        await websocket.close()
+        return
 
-    message_broker: BaseMessageBroker = container.resolve(BaseMessageBroker)
+    await connection_manager.accept_connection(websocket=websocket, key=chat_oid)
 
+    await websocket.send_text("You are now connected!")
 
-    async for consumed_message in  message_broker.start_consuming(
-        topic=config.new_message_received_topic):
-        await websocket.send_json(consumed_message)
-    
-    message_broker.stop_consuming()
-    websocket.close()
+    try:
+        while True:
+            await websocket.receive_text()
+
+    except WebSocketDisconnect:
+        await connection_manager.remove_connection(websocket=websocket, key=chat_oid)
