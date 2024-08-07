@@ -7,7 +7,7 @@ from infra.repositories.filters.messages import GetMessagesFilters
 
 
 @dataclass
-class BaseChatRepository(ABC):
+class BaseChatsRepository(ABC):
     @abstractmethod
     async def check_chat_exists_by_title(self, title: str) -> bool: ...
 
@@ -19,7 +19,7 @@ class BaseChatRepository(ABC):
 
 
 @dataclass
-class BaseMessageRepository(ABC):
+class BaseMessagesRepository(ABC):
     @abstractmethod
     async def add_message(self, chat_oid: str, message: Message) -> None: ...
 

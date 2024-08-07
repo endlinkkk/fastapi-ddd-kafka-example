@@ -1,9 +1,10 @@
 from dataclasses import dataclass
+from typing import Any, Coroutine
 
 from domain.entities.messages import Chat, Message
 from domain.values.messages import Text, Title
-from infra.repositories.messages.base import BaseMessageRepository
-from infra.repositories.messages.memory import BaseChatRepository
+from infra.repositories.messages.base import BaseMessagesRepository
+from infra.repositories.messages.memory import BaseChatsRepository
 from logic.commands.base import BaseCommand, BaseCommandHandler
 from logic.exceptions.messages import (
     ChatNotFoundException,
@@ -18,17 +19,22 @@ class CreateChatCommand(BaseCommand):
 
 @dataclass(frozen=True)
 class CreateChatCommandHandler(BaseCommandHandler[CreateChatCommand, Chat]):
-    chat_repository: BaseChatRepository
+    chats_repository: BaseChatsRepository
 
     async def handle(self, command: CreateChatCommand) -> Chat:
-        if await self.chat_repository.check_chat_exists_by_title(command.title):
+        
+        if await self.chats_repository.check_chat_exists_by_title(command.title):
             raise ChatWithThatTitleAlreadyExistsException(command.title)
 
         title = Title(value=command.title)
         chat = Chat.create_chat(title=title)
 
-        await self.chat_repository.add_chat(chat)
+        
 
+        await self.chats_repository.add_chat(chat)
+        
+        await self._mediator.publish(chat.pull_events())
+        
         return chat
 
 
@@ -40,11 +46,11 @@ class CreateMessageCommand(BaseCommand):
 
 @dataclass(frozen=True)
 class CreateMessageCommandHandler(BaseCommandHandler[CreateMessageCommand, Message]):
-    chat_repository: BaseChatRepository
-    message_repository: BaseMessageRepository
+    chats_repository: BaseChatsRepository
+    message_repository: BaseMessagesRepository
 
     async def handle(self, command: CreateMessageCommand) -> Message:
-        chat = await self.chat_repository.get_chat_by_oid(oid=command.chat_oid)
+        chat = await self.chats_repository.get_chat_by_oid(oid=command.chat_oid)
         if not chat:
             raise ChatNotFoundException(chat_oid=command.chat_oid)
 
@@ -54,4 +60,19 @@ class CreateMessageCommandHandler(BaseCommandHandler[CreateMessageCommand, Messa
             message=message
         )
 
+        await self._mediator.publish(chat.pull_events())
+
         return message
+
+
+@dataclass(frozen=True)
+class DeleteChatCommand(BaseCommand):
+    chat_oid: str
+
+
+@dataclass(frozen=True)
+class DeleteChatCommandHandler(BaseCommandHandler[DeleteChatCommand, None]):
+    chats_repository: BaseChatsRepository
+
+    def handle(self, command: DeleteChatCommand) -> None:
+        ...

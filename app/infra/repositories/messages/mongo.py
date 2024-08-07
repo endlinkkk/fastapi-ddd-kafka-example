@@ -5,7 +5,7 @@ from motor.core import AgnosticClient
 from motor.motor_asyncio import AsyncIOMotorClient
 from domain.entities.messages import Chat, Message
 from infra.repositories.filters.messages import GetMessagesFilters
-from infra.repositories.messages.base import BaseChatRepository, BaseMessageRepository
+from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from infra.repositories.messages.converters import (
     convert_chat_document_to_entity,
     convert_chat_entity_to_document,
@@ -28,7 +28,7 @@ class BaseMongoDBRepository(ABC):
 
 
 @dataclass
-class MongoDBChatRepository(BaseChatRepository, BaseMongoDBRepository):
+class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
 
     async def get_chat_by_oid(self, oid: str) -> Chat:
         chat_document = await self._collection.find_one(filter={"oid": oid})
@@ -52,7 +52,7 @@ class MongoDBChatRepository(BaseChatRepository, BaseMongoDBRepository):
 
 
 @dataclass
-class MongoDBMessageRepository(BaseMessageRepository, BaseMongoDBRepository):
+class MongoDBMessagesRepository(BaseMessagesRepository, BaseMongoDBRepository):
     async def add_message(self, message: Message) -> None:
         await self._collection.insert_one(document=convert_message_to_document(message))
         

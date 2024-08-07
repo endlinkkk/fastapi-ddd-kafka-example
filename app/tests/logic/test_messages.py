@@ -2,15 +2,15 @@ from faker import Faker
 import pytest
 from domain.entities.messages import Chat
 from domain.values.messages import Title
-from infra.repositories.messages.memory import BaseChatRepository
+from infra.repositories.messages.memory import BaseChatsRepository
 from logic.commands.messages import CreateChatCommand
 from logic.exceptions.messages import ChatWithThatTitleAlreadyExistsException
-from logic.mediator import Mediator
+from logic.mediator.base import Mediator
 
 
 @pytest.mark.asyncio
 async def test_create_chat_command_success(
-    chat_repository: BaseChatRepository,
+    chats_repository: BaseChatsRepository,
     mediator: Mediator,
     faker: Faker,
 ):
@@ -20,21 +20,21 @@ async def test_create_chat_command_success(
         )
     )[0]
 
-    assert await chat_repository.check_chat_exists_by_title(
+    assert await chats_repository.check_chat_exists_by_title(
         title=chat.title.as_generic_type()
     )
 
 
 @pytest.mark.asyncio
 async def test_create_chat_command_title_already_exists(
-    chat_repository,
+    chats_repository,
     mediator,
     faker: Faker,
 ):
     fake_title = faker.text(max_nb_chars=10)
 
     chat = Chat(title=Title(fake_title))
-    await chat_repository.add_chat(chat)
+    await chats_repository.add_chat(chat)
 
     with pytest.raises(ChatWithThatTitleAlreadyExistsException):
 
@@ -42,4 +42,4 @@ async def test_create_chat_command_title_already_exists(
             await mediator.handle_command(CreateChatCommand(title=fake_title))
         )[0]
 
-    assert len(chat_repository._saved_chats) == 1
+    assert len(chats_repository._saved_chats) == 1
