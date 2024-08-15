@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Any, Coroutine
 
 from domain.entities.messages import Chat, Message
 from domain.values.messages import Text, Title
@@ -22,7 +21,6 @@ class CreateChatCommandHandler(BaseCommandHandler[CreateChatCommand, Chat]):
     chats_repository: BaseChatsRepository
 
     async def handle(self, command: CreateChatCommand) -> Chat:
-        
         if await self.chats_repository.check_chat_exists_by_title(command.title):
             raise ChatWithThatTitleAlreadyExistsException(command.title)
 
@@ -30,9 +28,9 @@ class CreateChatCommandHandler(BaseCommandHandler[CreateChatCommand, Chat]):
         chat = Chat.create_chat(title=title)
 
         await self.chats_repository.add_chat(chat)
-        
+
         await self._mediator.publish(chat.pull_events())
-        
+
         return chat
 
 
@@ -54,9 +52,7 @@ class CreateMessageCommandHandler(BaseCommandHandler[CreateMessageCommand, Messa
 
         message = Message(text=Text(value=command.text), chat_oid=command.chat_oid)
         chat.add_message(message)
-        await self.message_repository.add_message(
-            message=message
-        )
+        await self.message_repository.add_message(message=message)
 
         await self._mediator.publish(chat.pull_events())
 
@@ -72,5 +68,4 @@ class DeleteChatCommand(BaseCommand):
 class DeleteChatCommandHandler(BaseCommandHandler[DeleteChatCommand, None]):
     chats_repository: BaseChatsRepository
 
-    def handle(self, command: DeleteChatCommand) -> None:
-        ...
+    def handle(self, command: DeleteChatCommand) -> None: ...

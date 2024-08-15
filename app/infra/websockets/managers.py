@@ -20,20 +20,16 @@ class BaseConnectionManager(ABC):
     )
 
     @abstractmethod
-    async def accept_connection(self, websocket: WebSocket, key: str):
-        ...
+    async def accept_connection(self, websocket: WebSocket, key: str): ...
 
     @abstractmethod
-    async def remove_connection(self, websocket: WebSocket, key: str):
-        ...
+    async def remove_connection(self, websocket: WebSocket, key: str): ...
 
     @abstractmethod
-    async def send_all(self, key: str, bytes_: bytes):
-        ...
+    async def send_all(self, key: str, bytes_: bytes): ...
 
     @abstractmethod
-    async def disconnect_all(self, key: str):
-        ...
+    async def disconnect_all(self, key: str): ...
 
 
 @dataclass
@@ -61,7 +57,9 @@ class ConnectionManager(BaseConnectionManager):
     async def disconnect_all(self, key: str):
         async with self.lock_map[key]:
             for websocket in self.connections_map[key]:
-                await websocket.send_json({
-                    'message': 'Chat has been deleted',
-                })
+                await websocket.send_json(
+                    {
+                        "message": "Chat has been deleted",
+                    }
+                )
                 await websocket.close()

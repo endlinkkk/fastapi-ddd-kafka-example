@@ -46,7 +46,7 @@ class NewMessageReceivedEventHandler(EventHandler[NewMessageReceivedEvent, None]
 
 @dataclass
 class NewMessageReceivedFromBrokerEvent(IntegrationEvent):
-    event_title: ClassVar[str] = 'New Message From Broker Received'
+    event_title: ClassVar[str] = "New Message From Broker Received"
 
     message_text: str
     message_oid: str
@@ -54,7 +54,9 @@ class NewMessageReceivedFromBrokerEvent(IntegrationEvent):
 
 
 @dataclass
-class NewMessageReceivedFromBrokerEventHandler(EventHandler[NewMessageReceivedFromBrokerEvent, None]):
+class NewMessageReceivedFromBrokerEventHandler(
+    EventHandler[NewMessageReceivedFromBrokerEvent, None]
+):
     async def handle(self, event: NewMessageReceivedFromBrokerEvent) -> None:
         await self.connection_manager.send_all(
             key=event.chat_oid,

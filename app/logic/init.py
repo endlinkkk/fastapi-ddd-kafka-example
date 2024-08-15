@@ -57,6 +57,8 @@ from logic.queries.messages import (
     # GetAllChatsListenersQueryHandler,
     # GetAllChatsQuery,
     # GetAllChatsQueryHandler,
+    GetAllChatsQuery,
+    GetAllChatsQueryHandler,
     GetChatDetailQuery,
     GetChatDetailQueryHandler,
     GetMessagesQuery,
@@ -83,7 +85,9 @@ def _init_container() -> Container:
             serverSelectionTimeoutMS=3000,
         )
 
-    container.register(AsyncIOMotorClient, factory=create_mongodb_client, scope=Scope.singleton)
+    container.register(
+        AsyncIOMotorClient, factory=create_mongodb_client, scope=Scope.singleton
+    )
     client = container.resolve(AsyncIOMotorClient)
 
     def init_chats_mongodb_repository() -> BaseChatsRepository:
@@ -100,8 +104,16 @@ def _init_container() -> Container:
             mongo_db_collection_name=config.mongodb_messages_collection,
         )
 
-    container.register(BaseChatsRepository, factory=init_chats_mongodb_repository, scope=Scope.singleton)
-    container.register(BaseMessagesRepository, factory=init_messages_mongodb_repository, scope=Scope.singleton)
+    container.register(
+        BaseChatsRepository,
+        factory=init_chats_mongodb_repository,
+        scope=Scope.singleton,
+    )
+    container.register(
+        BaseMessagesRepository,
+        factory=init_messages_mongodb_repository,
+        scope=Scope.singleton,
+    )
 
     # Command handlers
     container.register(CreateChatCommandHandler)
@@ -110,7 +122,7 @@ def _init_container() -> Container:
     # Query Handlers
     container.register(GetChatDetailQueryHandler)
     container.register(GetMessagesQueryHandler)
-    # container.register(GetAllChatsQueryHandler)
+    container.register(GetAllChatsQueryHandler)
     # container.register(GetAllChatsListenersQueryHandler)
 
     def create_message_broker() -> BaseMessageBroker:
@@ -124,9 +136,13 @@ def _init_container() -> Container:
         )
 
     # Message Broker
-    container.register(BaseMessageBroker, factory=create_message_broker, scope=Scope.singleton)
+    container.register(
+        BaseMessageBroker, factory=create_message_broker, scope=Scope.singleton
+    )
 
-    container.register(BaseConnectionManager, instance=ConnectionManager(), scope=Scope.singleton)
+    container.register(
+        BaseConnectionManager, instance=ConnectionManager(), scope=Scope.singleton
+    )
 
     # Mediator
     def init_mediator() -> Mediator:
@@ -162,10 +178,12 @@ def _init_container() -> Container:
             broker_topic=config.new_message_received_topic,
             connection_manager=container.resolve(BaseConnectionManager),
         )
-        new_message_received_from_broker_event_handler = NewMessageReceivedFromBrokerEventHandler(
-            message_broker=container.resolve(BaseMessageBroker),
-            broker_topic=config.new_message_received_topic,
-            connection_manager=container.resolve(BaseConnectionManager),
+        new_message_received_from_broker_event_handler = (
+            NewMessageReceivedFromBrokerEventHandler(
+                message_broker=container.resolve(BaseMessageBroker),
+                broker_topic=config.new_message_received_topic,
+                connection_manager=container.resolve(BaseConnectionManager),
+            )
         )
         chat_deleted_event_handler = ChatDeletedEventHandler(
             message_broker=container.resolve(BaseMessageBroker),
@@ -227,10 +245,10 @@ def _init_container() -> Container:
             GetMessagesQuery,
             container.resolve(GetMessagesQueryHandler),
         )
-        # mediator.register_query(
-        #     GetAllChatsQuery,
-        #     container.resolve(GetAllChatsQueryHandler),
-        # )
+        mediator.register_query(
+            GetAllChatsQuery,
+            container.resolve(GetAllChatsQueryHandler),
+        )
         # mediator.register_query(
         #     GetAllChatsListenersQuery,
         #     container.resolve(GetAllChatsListenersQueryHandler),

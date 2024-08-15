@@ -5,8 +5,7 @@ from domain.exceptions.messages import TitleTooLongException, EmptyTextException
 
 
 @dataclass(frozen=True)
-class Text(BaseValueObject):
-
+class Text(BaseValueObject[str]):
     value: str
 
     def validate(self):
@@ -18,8 +17,7 @@ class Text(BaseValueObject):
 
 
 @dataclass(frozen=True)
-class Title(BaseValueObject):
-
+class Title(BaseValueObject[str]):
     value: str
 
     def validate(self):

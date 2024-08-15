@@ -1,19 +1,16 @@
-from uuid import UUID
 from fastapi import Depends, WebSocket, WebSocketDisconnect
 from fastapi.routing import APIRouter
 from punq import Container
 
-from application.api.messages.decorators import handle_exceptions
-from infra.message_brokers.base import BaseMessageBroker
 from infra.websockets.managers import BaseConnectionManager
 from logic.exceptions.messages import ChatNotFoundException
 from logic.init import init_container
 from logic.mediator.base import Mediator
 from logic.queries.messages import GetChatDetailQuery
-from settings.config import Config
 
 
-router = APIRouter(tags=['chats'])
+router = APIRouter(tags=["chats"])
+
 
 @router.websocket("/{chat_oid}/")
 async def websocket_endpoint(
@@ -28,7 +25,7 @@ async def websocket_endpoint(
         await mediator.handle_query(GetChatDetailQuery(chat_oid=chat_oid))
     except ChatNotFoundException as error:
         await websocket.accept()
-        await websocket.send_json(data={'error': error.message})
+        await websocket.send_json(data={"error": error.message})
         await websocket.close()
         return
 

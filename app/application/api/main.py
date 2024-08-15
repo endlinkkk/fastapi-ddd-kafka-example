@@ -31,13 +31,13 @@ async def lifespan(app: FastAPI):
 
 def create_app() -> FastAPI:
     app = FastAPI(
-        title='Simple Kafka Chat',
-        docs_url='/api/docs',
-        description='A simple kafka + ddd example.',
+        title="Simple Kafka Chat",
+        docs_url="/api/docs",
+        description="A simple kafka + ddd example.",
         debug=True,
         lifespan=lifespan,
     )
-    app.include_router(message_router, prefix='/chats')
-    app.include_router(message_ws_router, prefix='/chats')
+    app.include_router(message_router, prefix="/chats")
+    app.include_router(message_ws_router, prefix="/chats")
 
     return app
