@@ -57,6 +57,10 @@ class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
         count = await self._collection.count_documents({})
 
         return chats, count
+    
+
+    async def delete_chat_by_oid(self, oid: str) -> None:
+        ...
 
 
 

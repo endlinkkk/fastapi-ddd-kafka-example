@@ -68,4 +68,5 @@ class DeleteChatCommand(BaseCommand):
 class DeleteChatCommandHandler(BaseCommandHandler[DeleteChatCommand, None]):
     chats_repository: BaseChatsRepository
 
-    def handle(self, command: DeleteChatCommand) -> None: ...
+    async def handle(self, command: DeleteChatCommand) -> None:
+        await self.chats_repository.delete_chat_by_oid(oid=command.chat_oid)

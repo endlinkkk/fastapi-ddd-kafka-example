@@ -16,7 +16,7 @@ from application.api.messages.schemas import (
     MessageDetailSchema,
 )
 from application.api.schemas import ErrorSchema
-from logic.commands.messages import CreateChatCommand, CreateMessageCommand
+from logic.commands.messages import CreateChatCommand, CreateMessageCommand, DeleteChatCommand
 from logic.init import init_container
 from logic.mediator.base import Mediator
 from logic.queries.messages import GetAllChatsQuery, GetChatDetailQuery, GetMessagesQuery
@@ -151,3 +151,22 @@ async def get_all_chats_handler(
     )
 
 
+@router.delete(
+    "/{chat_oid}",
+    status_code=status.HTTP_200_OK,
+    description="Delete chat by chat_oid",
+    responses={
+        status.HTTP_200_OK: {"description": 'Chat was deleted'},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+    summary='Delete chat by chat_oid'
+)
+@handle_exceptions
+async def delete_chat_handler(
+    chat_oid: str, container: Container = Depends(init_container)
+) -> None:
+    mediator: Mediator = container.resolve(Mediator)
+
+    await mediator.handle_query(DeleteChatCommand(chat_oid=chat_oid))
+
+    return status.HTTP_200_OK
