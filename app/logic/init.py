@@ -55,8 +55,6 @@ from logic.mediator.event import EventMediator
 from logic.queries.messages import (
     # GetAllChatsListenersQuery,
     # GetAllChatsListenersQueryHandler,
-    # GetAllChatsQuery,
-    # GetAllChatsQueryHandler,
     GetAllChatsQuery,
     GetAllChatsQueryHandler,
     GetChatDetailQuery,

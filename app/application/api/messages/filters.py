@@ -2,7 +2,7 @@ from pydantic import BaseModel
 
 from infra.repositories.filters.messages import (
     GetMessagesFilters as GetMessagesInfraFilters,
-    GetChatsFilters as GetChatsInfraFilters
+    GetChatsFilters as GetChatsInfraFilters,
 )
 
 

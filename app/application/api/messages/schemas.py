@@ -65,8 +65,11 @@ class ChatDetailSchema(BaseModel):
         )
 
 
-class GetMessagesQueryResponseSchema(BaseQueryResponseSchema[list[MessageDetailSchema]]):
-    ...
+class GetMessagesQueryResponseSchema(
+    BaseQueryResponseSchema[list[MessageDetailSchema]]
+): ...
 
-class GetAllChatsQueryResponseSchema(BaseQueryResponseSchema[list[ChatDetailSchema]]):
-    ...
+
+class GetAllChatsQueryResponseSchema(
+    BaseQueryResponseSchema[list[ChatDetailSchema]]
+): ...

@@ -29,7 +29,7 @@ def test_create_chat_success():
 
 def test_create_chat_title_too_long():
     with pytest.raises(TitleTooLongException):
-        title = Title("title" * 200)
+        Title("title" * 200)
 
 
 def test_add_chat_to_message(faker: Faker):

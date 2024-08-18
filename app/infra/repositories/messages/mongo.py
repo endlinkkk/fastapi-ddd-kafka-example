@@ -47,7 +47,9 @@ class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
             convert_chat_entity_to_document(chat),
         )
 
-    async def get_all_chats(self, filters: GetChatsFilters) -> tuple[Iterable[Chat], int]:
+    async def get_all_chats(
+        self, filters: GetChatsFilters
+    ) -> tuple[Iterable[Chat], int]:
         cursor = self._collection.find().skip(filters.offset).limit(filters.limit)
 
         chats = [
@@ -57,12 +59,9 @@ class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
         count = await self._collection.count_documents({})
 
         return chats, count
-    
 
     async def delete_chat_by_oid(self, oid: str) -> None:
-        ...
-
-
+        await self._collection.delete_one({'oid': oid})
 
 
 @dataclass

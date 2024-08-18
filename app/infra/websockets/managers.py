@@ -55,11 +55,14 @@ class ConnectionManager(BaseConnectionManager):
             await websocket.send_bytes(bytes_)
 
     async def disconnect_all(self, key: str):
-        async with self.lock_map[key]:
-            for websocket in self.connections_map[key]:
-                await websocket.send_json(
-                    {
-                        "message": "Chat has been deleted",
-                    }
-                )
-                await websocket.close()
+        if key in self.lock_map:
+            async with self.lock_map[key]:
+                for websocket in self.connections_map[key]:
+                    await websocket.send_json(
+                        {
+                            "message": "Chat has been deleted",
+                        }
+                    )
+                    await websocket.close()
+
+

@@ -16,10 +16,18 @@ from application.api.messages.schemas import (
     MessageDetailSchema,
 )
 from application.api.schemas import ErrorSchema
-from logic.commands.messages import CreateChatCommand, CreateMessageCommand, DeleteChatCommand
+from logic.commands.messages import (
+    CreateChatCommand,
+    CreateMessageCommand,
+    DeleteChatCommand,
+)
 from logic.init import init_container
 from logic.mediator.base import Mediator
-from logic.queries.messages import GetAllChatsQuery, GetChatDetailQuery, GetMessagesQuery
+from logic.queries.messages import (
+    GetAllChatsQuery,
+    GetChatDetailQuery,
+    GetMessagesQuery,
+)
 
 router = APIRouter(
     tags=["Chat"],
@@ -130,7 +138,7 @@ async def get_chat_messages_handler(
         status.HTTP_200_OK: {"model": GetAllChatsQueryResponseSchema},
         status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
     },
-    summary='Get all chats'
+    summary="Get all chats",
 )
 @handle_exceptions
 async def get_all_chats_handler(
@@ -153,13 +161,13 @@ async def get_all_chats_handler(
 
 @router.delete(
     "/{chat_oid}",
-    status_code=status.HTTP_200_OK,
+    status_code=status.HTTP_204_NO_CONTENT,
     description="Delete chat by chat_oid",
     responses={
-        status.HTTP_200_OK: {"description": 'Chat was deleted'},
+        status.HTTP_204_NO_CONTENT: {"description": "Chat was deleted"},
         status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
     },
-    summary='Delete chat by chat_oid'
+    summary="Delete chat by chat_oid",
 )
 @handle_exceptions
 async def delete_chat_handler(
@@ -167,6 +175,6 @@ async def delete_chat_handler(
 ) -> None:
     mediator: Mediator = container.resolve(Mediator)
 
-    await mediator.handle_query(DeleteChatCommand(chat_oid=chat_oid))
+    await mediator.handle_command(DeleteChatCommand(chat_oid=chat_oid))
 
-    return status.HTTP_200_OK
+    return status.HTTP_204_NO_CONTENT
