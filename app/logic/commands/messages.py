@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from domain.entities.messages import Chat, Message
+from domain.entities.messages import Chat, ChatListener, Message
 from domain.values.messages import Text, Title
 from infra.repositories.messages.base import BaseMessagesRepository
 from infra.repositories.messages.memory import BaseChatsRepository
@@ -68,13 +68,40 @@ class DeleteChatCommand(BaseCommand):
 class DeleteChatCommandHandler(BaseCommandHandler[DeleteChatCommand, None]):
     chats_repository: BaseChatsRepository
 
-
     async def handle(self, command: DeleteChatCommand) -> None:
         chat = await self.chats_repository.get_chat_by_oid(oid=command.chat_oid)
         if not chat:
             raise ChatNotFoundException(chat_oid=command.chat_oid)
-        
+
         await self.chats_repository.delete_chat_by_oid(oid=command.chat_oid)
         chat.delete()
         await self._mediator.publish(chat.pull_events())
+
+
+@dataclass(frozen=True)
+class AddTelegramListenerCommand(BaseCommand):
+    chat_oid: str
+    telegram_chat_id: str
+
+
+@dataclass(frozen=True)
+class AddTelegramListenerCommandHandler(
+    BaseCommandHandler[AddTelegramListenerCommand, ChatListener]
+):
+    chats_repository: BaseChatsRepository
+
+    async def handle(self, command: AddTelegramListenerCommand) -> None:
+        chat = await self.chats_repository.get_chat_by_oid(oid=command.chat_oid)
+        if not chat:
+            raise ChatNotFoundException(chat_oid=command.chat_oid)
+
         
+        listener = ChatListener(oid=command.telegram_chat_id)
+        chat.add_listener(listener)
+        await self.chats_repository.add_telegram_listener(
+            chat_oid=command.chat_oid, telegram_chat_id=command.telegram_chat_id
+        )
+        
+
+        await self._mediator.publish(chat.pull_events())
+        return listener

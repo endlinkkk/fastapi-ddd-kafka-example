@@ -23,6 +23,9 @@ class BaseChatsRepository(ABC):
     @abstractmethod
     async def delete_chat_by_oid(self, oid: str): ...
 
+    @abstractmethod
+    async def add_telegram_listener(self, chat_oid: str, telegram_chat_id: str): ...
+
 
 @dataclass
 class BaseMessagesRepository(ABC):

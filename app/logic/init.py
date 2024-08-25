@@ -33,8 +33,8 @@ from infra.websockets.managers import (
     ConnectionManager,
 )
 from logic.commands.messages import (
-    # AddTelegramListenerCommand,
-    # AddTelegramListenerCommandHandler,
+    AddTelegramListenerCommand,
+    AddTelegramListenerCommandHandler,
     CreateChatCommand,
     CreateChatCommandHandler,
     CreateMessageCommand,
@@ -53,8 +53,6 @@ from logic.events.messages import (
 from logic.mediator.base import Mediator
 from logic.mediator.event import EventMediator
 from logic.queries.messages import (
-    # GetAllChatsListenersQuery,
-    # GetAllChatsListenersQueryHandler,
     GetAllChatsQuery,
     GetAllChatsQueryHandler,
     GetChatDetailQuery,
@@ -160,10 +158,10 @@ def _init_container() -> Container:
             _mediator=mediator,
             chats_repository=container.resolve(BaseChatsRepository),
         )
-        # add_telegram_listener_handler = AddTelegramListenerCommandHandler(
-        #     _mediator=mediator,
-        #     chats_repository=container.resolve(BaseChatsRepository),
-        # )
+        add_telegram_listener_handler = AddTelegramListenerCommandHandler(
+            _mediator=mediator,
+            chats_repository=container.resolve(BaseChatsRepository),
+        )
 
         # event handlers
         new_chat_created_event_handler = NewChatCreatedEventHandler(
@@ -229,10 +227,10 @@ def _init_container() -> Container:
             DeleteChatCommand,
             [delete_chat_handler],
         )
-        # mediator.register_command(
-        #     AddTelegramListenerCommand,
-        #     [add_telegram_listener_handler],
-        # )
+        mediator.register_command(
+            AddTelegramListenerCommand,
+            [add_telegram_listener_handler],
+        )
 
         # Queries
         mediator.register_query(

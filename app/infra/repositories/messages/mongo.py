@@ -61,7 +61,12 @@ class MongoDBChatsRepository(BaseChatsRepository, BaseMongoDBRepository):
         return chats, count
 
     async def delete_chat_by_oid(self, oid: str) -> None:
-        await self._collection.delete_one({'oid': oid})
+        await self._collection.delete_one({"oid": oid})
+
+    async def add_telegram_listener(self, chat_oid: str, telegram_chat_id: str):
+        await self._collection.update_one(
+            {"oid": chat_oid}, {"$push": {"listeners": telegram_chat_id}}
+        )
 
 
 @dataclass

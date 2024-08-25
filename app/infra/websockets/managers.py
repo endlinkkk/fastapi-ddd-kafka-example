@@ -64,5 +64,3 @@ class ConnectionManager(BaseConnectionManager):
                         }
                     )
                     await websocket.close()
-
-

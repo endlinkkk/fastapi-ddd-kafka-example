@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from application.api.schemas import BaseQueryResponseSchema
-from domain.entities.messages import Chat, Message
+from domain.entities.messages import Chat, ChatListener, Message
 
 
 class CreateChatRequestSchema(BaseModel):
@@ -63,6 +63,18 @@ class ChatDetailSchema(BaseModel):
             title=chat.title.as_generic_type(),
             created_at=chat.created_at,
         )
+
+
+class AddListenerSchema(BaseModel):
+    telegram_chat_id: str
+
+
+class AddListenerResponseSchema(BaseModel):
+    listener_id: str
+
+    @classmethod
+    def from_entity(cls, listener: ChatListener) -> "AddListenerResponseSchema":
+        return cls(listener_id=listener.oid)
 
 
 class GetMessagesQueryResponseSchema(

@@ -6,6 +6,8 @@ from fastapi.routing import APIRouter
 from application.api.messages.decorators import handle_exceptions
 from application.api.messages.filters import GetMessagesFilters, GetChatsFilters
 from application.api.messages.schemas import (
+    AddListenerResponseSchema,
+    AddListenerSchema,
     ChatDetailSchema,
     CreateChatRequestSchema,
     CreateChatResponseSchema,
@@ -17,6 +19,7 @@ from application.api.messages.schemas import (
 )
 from application.api.schemas import ErrorSchema
 from logic.commands.messages import (
+    AddTelegramListenerCommand,
     CreateChatCommand,
     CreateMessageCommand,
     DeleteChatCommand,
@@ -178,3 +181,28 @@ async def delete_chat_handler(
     await mediator.handle_command(DeleteChatCommand(chat_oid=chat_oid))
 
     return status.HTTP_204_NO_CONTENT
+
+
+@router.post(
+    "/{chat_oid}/listeners/",
+    status_code=status.HTTP_201_CREATED,
+    description="Add telegram tech support lictener to chat",
+    responses={
+        status.HTTP_201_CREATED: {"model": AddListenerResponseSchema},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+    summary="Add telegram tech support lictener to chat",
+    operation_id="addTelegramListenerToChat",
+)
+@handle_exceptions
+async def add_telegram_listener(
+    chat_oid: str, schema: AddListenerSchema, container: Container = Depends(init_container)
+) -> AddListenerResponseSchema:
+    mediator: Mediator = container.resolve(Mediator)
+
+    listener, *_ = await mediator.handle_command(
+        AddTelegramListenerCommand(
+            chat_oid=chat_oid, telegram_chat_id=schema.telegram_chat_id
+        )
+    )
+    return AddListenerResponseSchema.from_entity(listener)
