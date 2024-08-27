@@ -9,6 +9,7 @@ from application.api.messages.schemas import (
     AddListenerResponseSchema,
     AddListenerSchema,
     ChatDetailSchema,
+    ChatListenerItemSchema,
     CreateChatRequestSchema,
     CreateChatResponseSchema,
     CreateMessageResponseSchema,
@@ -27,6 +28,7 @@ from logic.commands.messages import (
 from logic.init import init_container
 from logic.mediator.base import Mediator
 from logic.queries.messages import (
+    GetAllChatsListenersQuery,
     GetAllChatsQuery,
     GetChatDetailQuery,
     GetMessagesQuery,
@@ -206,3 +208,30 @@ async def add_telegram_listener(
         )
     )
     return AddListenerResponseSchema.from_entity(listener)
+
+
+
+@router.get(
+    "/{chat_oid}/listeners",
+    status_code=status.HTTP_200_OK,
+    description="Get all chat listeners",
+    summary="Get all chat listeners",
+    responses={
+        status.HTTP_200_OK: {"model": list[ChatListenerItemSchema]},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+    operation_id='getAllChatListeners'
+
+)
+@handle_exceptions
+async def get_all_chat_listeners_handler(
+    chat_oid: str,
+    container: Container = Depends(init_container),
+) -> list[ChatListenerItemSchema]:
+    mediator: Mediator = container.resolve(Mediator)
+
+    listeners = await mediator.handle_query(
+        GetAllChatsListenersQuery(chat_oid=chat_oid)
+    )
+
+    return [ChatListenerItemSchema.from_entity(chat_listener=listener) for listener in listeners]

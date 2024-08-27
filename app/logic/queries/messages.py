@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Iterable
 
-from domain.entities.messages import Chat, Message
+from domain.entities.messages import Chat, ChatListener, Message
 from infra.repositories.filters.messages import GetChatsFilters, GetMessagesFilters
 from infra.repositories.messages.base import BaseChatsRepository, BaseMessagesRepository
 from logic.exceptions.messages import ChatNotFoundException
@@ -22,6 +22,12 @@ class GetMessagesQuery(BaseQuery):
 @dataclass(frozen=True)
 class GetAllChatsQuery(BaseQuery):
     filters: GetChatsFilters
+
+
+@dataclass(frozen=True)
+class GetAllChatsListenersQuery(BaseQuery):
+    chat_oid: str
+
 
 
 @dataclass(frozen=True)
@@ -54,3 +60,18 @@ class GetAllChatsQueryHandler(BaseQueryHandler[GetAllChatsQuery, Iterable[Chat]]
 
     async def handle(self, query: GetAllChatsQuery) -> Iterable[Chat]:  # type: ignore
         return await self.chats_repository.get_all_chats(query.filters)
+
+
+
+@dataclass(frozen=True)
+class GetAllChatsListenersQueryHandler(BaseQueryHandler[GetAllChatsListenersQuery, Iterable[ChatListener]]):
+    chats_repository: BaseChatsRepository
+
+    async def handle(self, query: GetAllChatsListenersQuery) -> Iterable[ChatListener]:
+        chat = await self.chats_repository.get_chat_by_oid(query.chat_oid)
+
+        if not chat:
+            raise ChatNotFoundException(chat_oid=query.chat_oid)
+        
+        return await self.chats_repository.get_all_chat_listeners(chat_oid=query.chat_oid)
+    
