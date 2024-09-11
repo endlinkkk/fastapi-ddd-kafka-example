@@ -4,6 +4,7 @@ from typing import ClassVar
 from domain.events.messages import (
     ChatDeletedEvent,
     ListenerAddedEvent,
+    ListenerDeletedEvent,
     NewChatCreatedEvent,
     NewMessageReceivedEvent,
 )
@@ -26,7 +27,17 @@ class NewChatCreatedEventHandler(EventHandler[NewChatCreatedEvent, None]):
 
 @dataclass
 class ListenerAddedEventHandler(EventHandler[ListenerAddedEvent, None]):
-    async def handle(self, event: NewChatCreatedEvent) -> None:
+    async def handle(self, event: ListenerAddedEvent) -> None:
+        await self.message_broker.send_message(
+            topic=self.broker_topic,
+            value=convert_event_to_broker_message(event=event),
+            key=str(event.event_id).encode(),
+        )
+
+
+@dataclass
+class ListenerDeletedEventHandler(EventHandler[ListenerDeletedEvent, None]):
+    async def handle(self, event: ListenerDeletedEvent) -> None:
         await self.message_broker.send_message(
             topic=self.broker_topic,
             value=convert_event_to_broker_message(event=event),

@@ -29,7 +29,6 @@ class GetAllChatsListenersQuery(BaseQuery):
     chat_oid: str
 
 
-
 @dataclass(frozen=True)
 class GetChatDetailQueryHandler(BaseQueryHandler):
     chats_repository: BaseChatsRepository
@@ -62,9 +61,10 @@ class GetAllChatsQueryHandler(BaseQueryHandler[GetAllChatsQuery, Iterable[Chat]]
         return await self.chats_repository.get_all_chats(query.filters)
 
 
-
 @dataclass(frozen=True)
-class GetAllChatsListenersQueryHandler(BaseQueryHandler[GetAllChatsListenersQuery, Iterable[ChatListener]]):
+class GetAllChatsListenersQueryHandler(
+    BaseQueryHandler[GetAllChatsListenersQuery, Iterable[ChatListener]]
+):
     chats_repository: BaseChatsRepository
 
     async def handle(self, query: GetAllChatsListenersQuery) -> Iterable[ChatListener]:
@@ -72,6 +72,7 @@ class GetAllChatsListenersQueryHandler(BaseQueryHandler[GetAllChatsListenersQuer
 
         if not chat:
             raise ChatNotFoundException(chat_oid=query.chat_oid)
-        
-        return await self.chats_repository.get_all_chat_listeners(chat_oid=query.chat_oid)
-    
+
+        return await self.chats_repository.get_all_chat_listeners(
+            chat_oid=query.chat_oid
+        )

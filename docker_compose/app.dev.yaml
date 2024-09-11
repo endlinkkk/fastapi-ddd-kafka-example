@@ -14,8 +14,8 @@ services:
     volumes:
       - ../app/:/app/
 
-    depends_on:
-      kafka:
-        condition: service_healthy
+    # depends_on:
+    #   kafka:
+    #     condition: service_healthy
 
     command: "uvicorn --factory application.api.main:create_app --timeout-graceful-shutdown 2 --host 0.0.0.0 --port 8000 --reload"

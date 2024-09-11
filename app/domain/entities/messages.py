@@ -4,10 +4,14 @@ from domain.entities.base import BaseEntity
 from domain.events.messages import (
     ChatDeletedEvent,
     ListenerAddedEvent,
+    ListenerDeletedEvent,
     NewChatCreatedEvent,
     NewMessageReceivedEvent,
 )
-from domain.exceptions.messages import ListenerAlreadyExistsException
+from domain.exceptions.messages import (
+    ListenerAlreadyDeletedException,
+    ListenerAlreadyExistsException,
+)
 from domain.values.messages import Text, Title
 
 
@@ -57,3 +61,9 @@ class Chat(BaseEntity):
             raise ListenerAlreadyExistsException(listener_id=listener.oid)
         self.listeners.add(listener)
         self.register_event(ListenerAddedEvent(listener_oid=listener.oid))
+
+    def delete_listener(self, listener: ChatListener):
+        if listener not in self.listeners:
+            raise ListenerAlreadyDeletedException(listener_id=listener.oid)
+        self.listeners.remove(listener)
+        self.register_event(ListenerDeletedEvent(listener_oid=listener.oid))

@@ -26,3 +26,12 @@ class ListenerAlreadyExistsException(ApplicationException):
     @property
     def message(self):
         return f"Listener already exists {self.text}"
+
+
+@dataclass
+class ListenerAlreadyDeletedException(ApplicationException):
+    text: str
+
+    @property
+    def message(self):
+        return f"Listener already deleted {self.text}"

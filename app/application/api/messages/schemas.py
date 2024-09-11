@@ -82,9 +82,8 @@ class ChatListenerItemSchema(BaseModel):
 
     @classmethod
     def from_entity(cls, chat_listener: ChatListener):
-        return cls(
-            oid=chat_listener.oid
-        )
+        return cls(oid=chat_listener.oid)
+
 
 class GetMessagesQueryResponseSchema(
     BaseQueryResponseSchema[list[MessageDetailSchema]]

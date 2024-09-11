@@ -15,6 +15,7 @@ from punq import (
 from domain.events.messages import (
     ChatDeletedEvent,
     ListenerAddedEvent,
+    ListenerDeletedEvent,
     NewChatCreatedEvent,
     NewMessageReceivedEvent,
 )
@@ -41,10 +42,13 @@ from logic.commands.messages import (
     CreateMessageCommandHandler,
     DeleteChatCommand,
     DeleteChatCommandHandler,
+    DeleteChatListenerCommandHandler,
+    DeleteTelegramListenerCommand,
 )
 from logic.events.messages import (
     ChatDeletedEventHandler,
     ListenerAddedEventHandler,
+    ListenerDeletedEventHandler,
     NewChatCreatedEventHandler,
     NewMessageReceivedEventHandler,
     NewMessageReceivedFromBrokerEvent,
@@ -165,6 +169,11 @@ def _init_container() -> Container:
             chats_repository=container.resolve(BaseChatsRepository),
         )
 
+        delete_telegram_listener_handler = DeleteChatListenerCommandHandler(
+            _mediator=mediator,
+            chats_repository=container.resolve(BaseChatsRepository),
+        )
+
         # event handlers
         new_chat_created_event_handler = NewChatCreatedEventHandler(
             broker_topic=config.new_chats_event_topic,
@@ -194,6 +203,12 @@ def _init_container() -> Container:
             connection_manager=container.resolve(BaseConnectionManager),
         )
 
+        listener_deleted_handler = ListenerDeletedEventHandler(
+            message_broker=container.resolve(BaseMessageBroker),
+            broker_topic=config.listener_deleted_topic,
+            connection_manager=container.resolve(BaseConnectionManager),
+        )
+
         # events
         mediator.register_event(
             NewChatCreatedEvent,
@@ -215,6 +230,10 @@ def _init_container() -> Container:
             ListenerAddedEvent,
             [new_listener_added_handler],
         )
+        mediator.register_event(
+            ListenerDeletedEvent,
+            [listener_deleted_handler],
+        )
 
         # commands
         mediator.register_command(
@@ -232,6 +251,9 @@ def _init_container() -> Container:
         mediator.register_command(
             AddTelegramListenerCommand,
             [add_telegram_listener_handler],
+        )
+        mediator.register_command(
+            DeleteTelegramListenerCommand, [delete_telegram_listener_handler]
         )
 
         # Queries

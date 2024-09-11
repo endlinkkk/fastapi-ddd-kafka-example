@@ -24,6 +24,7 @@ from logic.commands.messages import (
     CreateChatCommand,
     CreateMessageCommand,
     DeleteChatCommand,
+    DeleteTelegramListenerCommand,
 )
 from logic.init import init_container
 from logic.mediator.base import Mediator
@@ -87,7 +88,7 @@ async def create_message_handler(
 
 
 @router.get(
-    "/{chat_oid}",
+    "/{chat_oid}/",
     status_code=status.HTTP_200_OK,
     description="Get chat detail by chat_oid",
     responses={
@@ -198,7 +199,9 @@ async def delete_chat_handler(
 )
 @handle_exceptions
 async def add_telegram_listener(
-    chat_oid: str, schema: AddListenerSchema, container: Container = Depends(init_container)
+    chat_oid: str,
+    schema: AddListenerSchema,
+    container: Container = Depends(init_container),
 ) -> AddListenerResponseSchema:
     mediator: Mediator = container.resolve(Mediator)
 
@@ -210,9 +213,8 @@ async def add_telegram_listener(
     return AddListenerResponseSchema.from_entity(listener)
 
 
-
 @router.get(
-    "/{chat_oid}/listeners",
+    "/{chat_oid}/listeners/",
     status_code=status.HTTP_200_OK,
     description="Get all chat listeners",
     summary="Get all chat listeners",
@@ -220,8 +222,7 @@ async def add_telegram_listener(
         status.HTTP_200_OK: {"model": list[ChatListenerItemSchema]},
         status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
     },
-    operation_id='getAllChatListeners'
-
+    operation_id="getAllChatListeners",
 )
 @handle_exceptions
 async def get_all_chat_listeners_handler(
@@ -234,4 +235,33 @@ async def get_all_chat_listeners_handler(
         GetAllChatsListenersQuery(chat_oid=chat_oid)
     )
 
-    return [ChatListenerItemSchema.from_entity(chat_listener=listener) for listener in listeners]
+    return [
+        ChatListenerItemSchema.from_entity(chat_listener=listener)
+        for listener in listeners
+    ]
+
+
+@router.delete(
+    "/{chat_oid}/listeners/{listener_oid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    description="Delete chat-listener by listener-id",
+    summary="Delete chat-listener by listener-id",
+    responses={
+        status.HTTP_204_NO_CONTENT: {"description": "Listener was deleted"},
+        status.HTTP_400_BAD_REQUEST: {"model": ErrorSchema},
+    },
+    operation_id="deleteChatListener",
+)
+@handle_exceptions
+async def delete_chat_listener_handler(
+    chat_oid: str,
+    listener_oid: str,
+    container: Container = Depends(init_container),
+) -> None:
+    mediator: Mediator = container.resolve(Mediator)
+
+    await mediator.handle_command(
+        DeleteTelegramListenerCommand(chat_oid=chat_oid, telegram_chat_id=listener_oid)
+    )
+
+    return status.HTTP_204_NO_CONTENT

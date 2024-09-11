@@ -95,13 +95,37 @@ class AddTelegramListenerCommandHandler(
         if not chat:
             raise ChatNotFoundException(chat_oid=command.chat_oid)
 
-        
         listener = ChatListener(oid=command.telegram_chat_id)
         chat.add_listener(listener)
         await self.chats_repository.add_telegram_listener(
             chat_oid=command.chat_oid, telegram_chat_id=command.telegram_chat_id
         )
-        
 
         await self._mediator.publish(chat.pull_events())
         return listener
+
+
+@dataclass(frozen=True)
+class DeleteTelegramListenerCommand(BaseCommand):
+    chat_oid: str
+    telegram_chat_id: str
+
+
+@dataclass(frozen=True)
+class DeleteChatListenerCommandHandler(
+    BaseCommandHandler[DeleteTelegramListenerCommand, None]
+):
+    chats_repository: BaseChatsRepository
+
+    async def handle(self, command: DeleteTelegramListenerCommand) -> None:
+        chat = await self.chats_repository.get_chat_by_oid(oid=command.chat_oid)
+        if not chat:
+            raise ChatNotFoundException(chat_oid=command.chat_oid)
+
+        listener = ChatListener(oid=command.telegram_chat_id)
+        chat.delete_listener(listener)
+
+        await self.chats_repository.delete_telegram_listener(
+            chat_oid=command.chat_oid, telegram_chat_id=command.telegram_chat_id
+        )
+        await self._mediator.publish(chat.pull_events())
