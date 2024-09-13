@@ -242,7 +242,7 @@ async def get_all_chat_listeners_handler(
 
 
 @router.delete(
-    "/{chat_oid}/listeners/{listener_oid}",
+    "/{chat_oid}/listeners/{listener_oid}/",
     status_code=status.HTTP_204_NO_CONTENT,
     description="Delete chat-listener by listener-id",
     summary="Delete chat-listener by listener-id",

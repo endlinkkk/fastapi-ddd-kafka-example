@@ -58,7 +58,7 @@ class Chat(BaseEntity):
 
     def add_listener(self, listener: ChatListener):
         if listener in self.listeners:
-            raise ListenerAlreadyExistsException(listener_id=listener.oid)
+            raise ListenerAlreadyExistsException(listener.oid)
         self.listeners.add(listener)
         self.register_event(ListenerAddedEvent(listener_oid=listener.oid))
 
